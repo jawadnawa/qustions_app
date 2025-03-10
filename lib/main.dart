@@ -4,6 +4,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'brain.dart';
 import 'sustainability_solutions_page.dart';
+import 'dart:async';
 
 void main() {
   runApp(const SustainabilityApp());
@@ -20,124 +21,252 @@ class SustainabilityApp extends StatelessWidget {
         primarySwatch: Colors.green,
         fontFamily: 'Arial',
       ),
-      home: const HomePage(),
+      home: HomePage(),
     );
   }
 }
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.green.shade300, Colors.green.shade700],
-          ),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'الاستدامة والبيئة',
-                  style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    shadows: [
-                      Shadow(
-                        offset: Offset(2.0, 2.0),
-                        blurRadius: 3.0,
-                        color: Color.fromARGB(255, 0, 0, 0),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 50),
-                _buildButton(
-                  context,
-                  'بدء اللعبة',
-                  Icons.play_arrow,
-                  () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => DifficultySelectionPage()),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                _buildButton(
-                  context,
-                  'فيديو عن الاستدامة',
-                  Icons.video_library,
-                  () => _showVideoDialog(context),
-                ),
-                const SizedBox(height: 20),
-                _buildButton(
-                  context,
-                  'الاستدامة والحلول',
-                  Icons.eco,
-                  () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SustainabilitySolutionsPage(),
-                    ),
-                  ),
-                ),
+      body: SafeArea(
+        bottom: false,
+        child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF1A237E),
+                Color(0xFF0D47A1),
               ],
             ),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // لوجو التطبيق
+              Container(
+                height: 200,
+                width: 200,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 20,
+                      spreadRadius: 5,
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.lightbulb_outline,
+                  size: 100,
+                  color: Colors.white,
+                ),
+              ),
+              SizedBox(height: 20),
+              Text(
+                'اختبر معلوماتك',
+                style: TextStyle(
+                  fontSize: 32, // تقليل حجم النص قليلاً لتجنب overflow
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontFamily: 'Cairo',
+                ),
+                textAlign: TextAlign.center, // تحسين توزيع النص
+              ),
+              SizedBox(height: 40),
+
+              // قائمة الأزرار مع Row مضبوط
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  children: [
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: 600, // يمنع التمدد الزائد للأزرار
+                      ),
+                      child: Row(
+                        mainAxisSize:
+                            MainAxisSize.min, // يمنع التمدد الزائد لـ Row
+                        children: [
+                          Expanded(
+                            child: _buildMenuCard(
+                              context,
+                              'ابدأ الاختبار',
+                              Icons.play_arrow_rounded,
+                              () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      DifficultySelectionPage(),
+                                ),
+                              ),
+                              Colors.green,
+                            ),
+                          ),
+                          SizedBox(width: 10), // تقليل المسافة بين الأزرار
+                          Expanded(
+                            child: _buildMenuCard(
+                              context,
+                              'الفيديو',
+                              Icons.video_library,
+                              () => _showVideoDialog(context),
+                              Colors.orange,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    _buildMenuCard(
+                      context,
+                      'الحلول المستدامة',
+                      Icons.eco,
+                      () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SustainabilitySolutionsPage(),
+                        ),
+                      ),
+                      Color.fromARGB(255, 33, 150, 241),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildButton(
-    BuildContext context,
-    String text,
-    IconData icon,
-    VoidCallback onPressed,
-  ) {
-    return SizedBox(
+Widget _buildMenuCard(
+  BuildContext context,
+  String title,
+  IconData icon,
+  VoidCallback onTap,
+  Color color,
+) {
+  return GestureDetector(
+    onTap: onTap,
+    child: Container(
       width: double.infinity,
-      height: 60,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.green.shade700,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(40),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.3),
+            blurRadius: 15,
+            spreadRadius: 2,
           ),
-          elevation: 5,
+        ],
+      ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          vertical: 20,
+          horizontal: 16,
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start, // Changed from center
           children: [
-            Icon(icon, size: 24),
-            const SizedBox(width: 10),
-            Text(
-              text,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Container(
+              padding: EdgeInsets.all(12), // Reduced padding
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: 32, // Reduced size
+                color: color,
+              ),
+            ),
+            SizedBox(width: 12), // Reduced spacing
+            Expanded(
+              // Added Expanded
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 20, // Reduced font size
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                  fontFamily: 'Cairo',
+                ),
+                overflow: TextOverflow.ellipsis, // Added overflow handling
+              ),
             ),
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
-  void _showVideoDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => const VideoPlayerDialog(),
-    );
-  }
+void _showAboutDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      title: Text(
+        'حول التطبيق',
+        style: TextStyle(
+          fontFamily: 'Cairo',
+          fontWeight: FontWeight.bold,
+        ),
+        textAlign: TextAlign.center,
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'تطبيق تعليمي يهدف إلى زيادة الوعي بالاستدامة البيئية من خلال الأسئلة التفاعلية والمحتوى التعليمي',
+            style: TextStyle(
+              fontFamily: 'Cairo',
+              fontSize: 16,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 20),
+          Text(
+            'الإصدار 1.0.0',
+            style: TextStyle(
+              color: Colors.grey,
+              fontFamily: 'Cairo',
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          child: Text(
+            'حسناً',
+            style: TextStyle(
+              fontFamily: 'Cairo',
+              fontSize: 16,
+              color: Theme.of(context).primaryColor,
+            ),
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ],
+    ),
+  );
+}
+
+void _showVideoDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) => const VideoPlayerDialog(),
+  );
 }
 
 class VideoPlayerDialog extends StatefulWidget {
@@ -150,6 +279,9 @@ class VideoPlayerDialog extends StatefulWidget {
 class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
   late VideoPlayerController _controller;
   bool _isInitialized = false;
+  bool _isPlaying = true;
+  bool _isButtonVisible = false; // متغير لرؤية الزر
+  Timer? _hideButtonTimer; // مؤقت لإخفاء الزر
 
   @override
   void initState() {
@@ -158,34 +290,104 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
       ..initialize().then((_) {
         setState(() {
           _isInitialized = true;
-          _controller.play(); // تشغيل الفيديو تلقائياً
-          _controller.setLooping(true); // تكرار الفيديو
+          _controller.play();
+          _controller.setLooping(true);
         });
       });
+  }
+
+  // دالة لإيقاف الفيديو وإغلاق النافذة
+  void _pauseAndPop() {
+    _controller.pause();
+    Navigator.of(context).pop();
+  }
+
+  // دالة التحكم بالزر
+  void _togglePlayPause() {
+    setState(() {
+      if (_isPlaying) {
+        _controller.pause();
+      } else {
+        _controller.play();
+      }
+      _isPlaying = !_isPlaying;
+      _isButtonVisible = true; // إظهار الزر عند الضغط
+    });
+
+    // إعادة ضبط المؤقت
+    _hideButtonTimer?.cancel();
+    _hideButtonTimer = Timer(const Duration(seconds: 10), () {
+      setState(() {
+        _isButtonVisible = false;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async {
+        _pauseAndPop();
+        return false;
+      },
+      child: Dialog(
+        backgroundColor: Colors.black.withOpacity(0.7),
+        elevation: 0,
+        insetPadding: EdgeInsets.zero,
+        child: GestureDetector(
+          onTap: _pauseAndPop,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // مشغل الفيديو مع إمكانية إظهار الزر بالنقر
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _isButtonVisible = true;
+                      });
+                      _hideButtonTimer?.cancel();
+                      _hideButtonTimer = Timer(const Duration(seconds: 1), () {
+                        setState(() {
+                          _isButtonVisible = false;
+                        });
+                      });
+                    },
+                    child: _isInitialized
+                        ? VideoPlayer(_controller)
+                        : const Center(
+                            child:
+                                CircularProgressIndicator(color: Colors.white)),
+                  ),
+
+                  // زر التحكم (يظهر فقط عند النقر أو الضغط)
+                  if (_isInitialized && _isButtonVisible)
+                    FloatingActionButton(
+                      onPressed: _togglePlayPause,
+                      backgroundColor: Colors.black38,
+                      child: Icon(
+                        _isPlaying ? Icons.pause : Icons.play_arrow,
+                        color: Colors.white,
+                        size: 40,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _hideButtonTimer?.cancel();
     super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      child: AspectRatio(
-        aspectRatio: 16 / 9,
-        child: _isInitialized
-            ? VideoPlayer(_controller)
-            : const Center(
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                ),
-              ),
-      ),
-    );
   }
 }
 
@@ -193,41 +395,79 @@ class DifficultySelectionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('اختر مستوى الصعوبة'),
-        centerTitle: true,
-      ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.green.shade300, Colors.green.shade700],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF1A237E),
+              Color(0xFF0D47A1),
+            ],
           ),
         ),
-        child: Center(
+        child: SafeArea(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildDifficultyButton(
-                context,
-                'سهل',
-                Icons.star_border,
-                Difficulty.easy,
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    Expanded(
+                      child: Text(
+                        'اختر المستوى',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontFamily: 'Cairo',
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    SizedBox(width: 40), // للمحاذاة
+                  ],
+                ),
               ),
-              const SizedBox(height: 20),
-              _buildDifficultyButton(
-                context,
-                'متوسط',
-                Icons.star_half,
-                Difficulty.medium,
-              ),
-              const SizedBox(height: 20),
-              _buildDifficultyButton(
-                context,
-                'صعب',
-                Icons.star,
-                Difficulty.hard,
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildDifficultyCard(
+                        context,
+                        'سهل',
+                        'للمبتدئين',
+                        Icons.sentiment_satisfied,
+                        Colors.green,
+                        Difficulty.easy,
+                      ),
+                      SizedBox(height: 20),
+                      _buildDifficultyCard(
+                        context,
+                        'متوسط',
+                        'للمتقدمين',
+                        Icons.sentiment_neutral,
+                        Colors.orange,
+                        Difficulty.medium,
+                      ),
+                      SizedBox(height: 20),
+                      _buildDifficultyCard(
+                        context,
+                        'صعب',
+                        'للخبراء',
+                        Icons.sentiment_very_satisfied,
+                        Colors.red,
+                        Difficulty.hard,
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
@@ -236,36 +476,90 @@ class DifficultySelectionPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDifficultyButton(
+  Widget _buildDifficultyCard(
     BuildContext context,
-    String text,
+    String title,
+    String subtitle,
     IconData icon,
+    Color color,
     Difficulty difficulty,
   ) {
-    return ElevatedButton.icon(
-      icon: Icon(icon, color: Colors.white),
-      label: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 24,
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => QuizPage(difficulty: difficulty),
+        ),
+      ),
+      child: Container(
+        height: 120,
+        decoration: BoxDecoration(
           color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.3),
+              blurRadius: 15,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 100,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                ),
+              ),
+              child: Icon(
+                icon,
+                size: 50,
+                color: color,
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                        fontFamily: 'Cairo',
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                        fontFamily: 'Cairo',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Icon(
+                Icons.arrow_forward_ios,
+                color: color,
+              ),
+            ),
+          ],
         ),
       ),
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
-        backgroundColor: Colors.green.shade800,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
-        ),
-      ),
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => QuizPage(difficulty: difficulty),
-          ),
-        );
-      },
     );
   }
 }
@@ -285,6 +579,7 @@ class _QuizPageState extends State<QuizPage> {
   int _questionIndex = 0;
   int _score = 0;
   bool _hasAnswered = false;
+  String? _selectedAnswer;
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   @override
@@ -299,7 +594,7 @@ class _QuizPageState extends State<QuizPage> {
       if (correct) {
         await _audioPlayer.play(AssetSource('sounds/correct.mp3'));
       } else {
-        await _audioPlayer.play(AssetSource('sounds/wrong.mp3'));
+        await _audioPlayer.play(AssetSource('sounds/wrong.wav'));
       }
     } catch (e) {
       debugPrint('Error playing sound: $e');
@@ -311,6 +606,7 @@ class _QuizPageState extends State<QuizPage> {
 
     setState(() {
       _hasAnswered = true;
+      _selectedAnswer = selectedAnswer;
     });
 
     bool isCorrect = selectedAnswer == _questions[_questionIndex].correctAnswer;
@@ -326,12 +622,14 @@ class _QuizPageState extends State<QuizPage> {
       setState(() {
         _questionIndex = _questions.length;
         _hasAnswered = false;
+        _selectedAnswer = null;
       });
       _saveScore();
     } else {
       setState(() {
         _questionIndex++;
         _hasAnswered = false;
+        _selectedAnswer = null;
       });
     }
   }
@@ -473,26 +771,21 @@ class _QuizPageState extends State<QuizPage> {
                 children: [
                   Text(
                     _hasAnswered &&
-                            _questions[_questionIndex].correctAnswer ==
-                                _questions[_questionIndex].options.first
+                            _selectedAnswer ==
+                                _questions[_questionIndex].correctAnswer
                         ? 'إجابة صحيحة!'
                         : 'إجابة خاطئة',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: _hasAnswered &&
-                              _questions[_questionIndex].correctAnswer ==
-                                  _questions[_questionIndex].options.first
+                              _selectedAnswer ==
+                                  _questions[_questionIndex].correctAnswer
                           ? Colors.green
                           : Colors.red,
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Text(
-                    question.explanation,
-                    style: const TextStyle(fontSize: 16),
-                    textAlign: TextAlign.center,
-                  ),
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: _nextQuestion,
@@ -562,91 +855,115 @@ class _QuizPageState extends State<QuizPage> {
       messageIcon = Icons.refresh;
     }
 
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            messageIcon,
-            size: 80,
-            color: messageColor,
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            'انتهى الاختبار!',
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'النتيجة النهائية: $_score من ${_questions.length}',
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            '${percentage.toStringAsFixed(1)}%',
-            style: TextStyle(
-              fontSize: 36,
-              fontWeight: FontWeight.bold,
-              color: messageColor,
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
             ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            message,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: messageColor,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 32),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  setState(() {
-                    _questionIndex = 0;
-                    _score = 0;
-                    _hasAnswered = false;
-                  });
-                },
-                icon: const Icon(Icons.refresh),
-                label: const Text(
-                  'إعادة الاختبار',
-                  style: TextStyle(fontSize: 20),
+            title: Column(
+              children: [
+                Icon(
+                  messageIcon,
+                  size: 60,
+                  color: messageColor,
                 ),
-                style: ElevatedButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                SizedBox(height: 10),
+                Text(
+                  'انتهى الاختبار!',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Cairo',
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'النتيجة النهائية: $_score من ${_questions.length}',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Cairo',
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 10),
+                Text(
+                  '${percentage.toStringAsFixed(1)}%',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: messageColor,
+                    fontFamily: 'Cairo',
                   ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                icon: const Icon(Icons.home),
-                label: const Text(
-                  'الصفحة الرئيسية',
-                  style: TextStyle(fontSize: 20),
-                ),
-                style: ElevatedButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                SizedBox(height: 10),
+                Text(
+                  message,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: messageColor,
+                    fontFamily: 'Cairo',
                   ),
+                  textAlign: TextAlign.center,
                 ),
+              ],
+            ),
+            actions: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context); // إغلاق الـ AlertDialog
+                      Navigator.pop(context); // العودة للقائمة الرئيسية
+                    },
+                    icon: Icon(Icons.home),
+                    label: Text(
+                      'القائمة الرئيسية',
+                      style: TextStyle(fontFamily: 'Cairo'),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context); // إغلاق الـ AlertDialog
+                      setState(() {
+                        _questionIndex = 0;
+                        _score = 0;
+                        _hasAnswered = false;
+                      });
+                    },
+                    icon: Icon(Icons.refresh),
+                    label: Text(
+                      'إعادة الاختبار',
+                      style: TextStyle(fontFamily: 'Cairo'),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ],
               ),
             ],
-          ),
-        ],
-      ),
-    );
+          );
+        },
+      );
+    });
+
+    return Container(); // إرجاع container فارغ لأننا نستخدم AlertDialog
   }
 }
